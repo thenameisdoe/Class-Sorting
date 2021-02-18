@@ -2,6 +2,7 @@
 title: "class sorting"
 author: "Doe Emmanuel"
 date: "09/21/2020"
+output: pdf_document
 ---
 
 ## R Markdown
