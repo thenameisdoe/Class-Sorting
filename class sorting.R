@@ -65,11 +65,11 @@ alphaorderclassonly$groups <- NA
 surname_counter <- 1
 
 for(name in alphaorderclassonly$Surname){
-  name_holder <- alphaorderclassonly$Surname[1]
+  name_holder <- alphaorderclassonly$Surname
   if (name == name_holder){
     alphaorderclassonly$groups[[surname_counter]] <- "group a"
-    surname_counter <- surname_counter + 1
     next
+    surname_counter <- surname_counter + 1
   }
   else{
     surname_counter <- surname_counter + 1
