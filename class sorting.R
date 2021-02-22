@@ -42,25 +42,26 @@ same_surname <- alphaorderclassonly %>%
   arrange(desc(n))
 same_surname
 
+#this shows(filters) the students with siblings
+siblings <- alphaorderclassonly %>%
+  filter(Surname %in% same_surname$Surname)
+siblings
+
 #Creates a new column to initialize grouping
 same_surname$groups <- NA
 
 #Assigns numbers to the respective distinct surnames
 same_surname$groups <- 1:nrow(same_surname)
 same_surname
-sm_join <-left_join(same_surname, siblings, by = "Surname")
-sm_join
+
 #summing helps to know the total number of students in this category
 sum(same_surname$n)
 
-#this shows(filters) the students with siblings
-siblings <- alphaorderclassonly %>%
-  filter(Surname %in% same_surname$Surname)
-siblings
+#Left join to assign the groups to the table that contains the names of children with siblings 
+sm_join_with_siblings <-left_join(same_surname, siblings, by = "Surname")
+sm_join_with_siblings
 
-
-
-#gets the count of people who dont share surname
+#Gets the count of people who dont share surname
 dif_surname <- alphaorderclassonly %>%
   count(Surname)%>%
   filter(n==1)
@@ -71,26 +72,24 @@ no_siblings <- alphaorderclassonly %>%
   filter(Surname %in% dif_surname$Surname)
 no_siblings
 
-#Initial Grouping Process
-alphaorderclassonly$groups <- NA
+#Initial Grouping Process for non siblings
+no_siblings$groups <- NA
 
-# surname_counter <- 1
-# for(name in alphaorderclassonly$Surname){
-#   name_holder <- alphaorderclassonly$Surname
-#   if (name == name_holder){
-#     alphaorderclassonly$groups[[surname_counter]] <- "group a"
-#     next
-#     surname_counter <- surname_counter + 1
-#   }
-#   else{
-#     surname_counter <- surname_counter + 1
-#     name_holder <- alphaorderclassonly$Surname[surname_counter]
-#     if (name == name_holder){
-#       alphaorderclassonly$groups[[surname_counter]] <- "group b"
-#     }
-#     else{
-#       break
-#     }
-#   }
-# }
-# alphaorderclassonly
+#Assign numbers to the groups
+no_siblings$groups <- 1: nrow(no_siblings)
+no_siblings
+
+#Removing unwanted columns from the two tables
+sm_join_with_siblings <- sm_join_with_siblings %>%
+  select(-n, -teacher, -SCHOLARSHIP, -`ON REBATE?`, -`COMPUTER No`)
+sm_join_with_siblings
+
+no_siblings <- no_siblings%>%
+  select(-teacher, -SCHOLARSHIP, -`ON REBATE?`, -`COMPUTER No`)
+no_siblings
+
+#Joining the two tables
+full_grouped_table <- full_join(sm_join_with_siblings, no_siblings)
+full_grouped_table %>% arrange(Surname)
+
+#Separating the groups into even number groups and odd number groups
