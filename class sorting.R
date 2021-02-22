@@ -90,6 +90,30 @@ no_siblings
 
 #Joining the two tables
 full_grouped_table <- full_join(sm_join_with_siblings, no_siblings)
-full_grouped_table %>% arrange(Surname)
+full_grouped_table <- full_grouped_table %>% arrange(Surname)
 
-#Separating the groups into even number groups and odd number groups
+#Separating the groups into even number groups and odd number groups (even = a, odd = b)
+full_grouped_table$groups_alpha <- NA
+
+i <- 1
+for(i in full_grouped_table$groups){
+  if(full_grouped_table$groups[i] %% 2 == 0){
+    full_grouped_table$groups_alpha[i] <- "group a"
+  }else{
+    full_grouped_table$groups_alpha[i] <- "group b"
+    next
+  }
+  i <- i + 1
+}
+full_grouped_table
+
+#Separating groups
+group_a_pupils <- full_grouped_table %>%
+  filter(groups_alpha == "group a")
+group_a_pupils
+
+group_b_pupils <- full_grouped_table %>%
+  filter(groups_alpha == "group b")
+group_b_pupils
+
+#Filter for different class
