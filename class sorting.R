@@ -18,7 +18,7 @@ library(stringr)
 #rename serial number column
 alphaorderlist <- alphaorderlist %>% rename(s_no = `S/No`)
 
-#separte the class teachers from the class
+#separate the class teachers from the class
 donn <- alphaorderlist %>%
   separate(CLASS, into = c("class", "teacher"), sep = "--")
 donn
@@ -117,3 +117,15 @@ group_b_pupils <- full_grouped_table %>%
 group_b_pupils
 
 #Filter for different class
+kg_1_group_a <- group_a_pupils %>%
+  filter(class == "KG 1")
+kg_1_group_a
+
+kg_1_group_b <- group_b_pupils %>%
+  filter(class == "KG 1")
+kg_1_group_b
+
+kg_2_group_a <- group_a_pupils %>%
+  filter(class == "KG 2")
+kg_2_group_a
+#and so on
