@@ -41,6 +41,15 @@ same_surname <- alphaorderclassonly %>%
   filter(n > 1) %>%
   arrange(desc(n))
 same_surname
+
+#Creates a new column to initialize grouping
+same_surname$groups <- NA
+
+#Assigns numbers to the respective distinct surnames
+same_surname$groups <- 1:nrow(same_surname)
+same_surname
+sm_join <-left_join(same_surname, siblings, by = "Surname")
+sm_join
 #summing helps to know the total number of students in this category
 sum(same_surname$n)
 
@@ -48,6 +57,8 @@ sum(same_surname$n)
 siblings <- alphaorderclassonly %>%
   filter(Surname %in% same_surname$Surname)
 siblings
+
+
 
 #gets the count of people who dont share surname
 dif_surname <- alphaorderclassonly %>%
@@ -62,24 +73,24 @@ no_siblings
 
 #Initial Grouping Process
 alphaorderclassonly$groups <- NA
-surname_counter <- 1
 
-for(name in alphaorderclassonly$Surname){
-  name_holder <- alphaorderclassonly$Surname
-  if (name == name_holder){
-    alphaorderclassonly$groups[[surname_counter]] <- "group a"
-    next
-    surname_counter <- surname_counter + 1
-  }
-  else{
-    surname_counter <- surname_counter + 1
-    name_holder <- alphaorderclassonly$Surname[surname_counter]
-    if (name == name_holder){
-      alphaorderclassonly$groups[[surname_counter]] <- "group b"
-    }
-    else{
-      break
-    }
-  }
-}
-alphaorderclassonly
+# surname_counter <- 1
+# for(name in alphaorderclassonly$Surname){
+#   name_holder <- alphaorderclassonly$Surname
+#   if (name == name_holder){
+#     alphaorderclassonly$groups[[surname_counter]] <- "group a"
+#     next
+#     surname_counter <- surname_counter + 1
+#   }
+#   else{
+#     surname_counter <- surname_counter + 1
+#     name_holder <- alphaorderclassonly$Surname[surname_counter]
+#     if (name == name_holder){
+#       alphaorderclassonly$groups[[surname_counter]] <- "group b"
+#     }
+#     else{
+#       break
+#     }
+#   }
+# }
+# alphaorderclassonly
