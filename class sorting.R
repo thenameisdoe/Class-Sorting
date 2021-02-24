@@ -57,11 +57,11 @@ same_surname
 #summing helps to know the total number of students in this category
 sum(same_surname$n)
 
-#Left join to assign the groups to the table that contains the names of children with siblings 
-sm_join_with_siblings <-left_join(same_surname, siblings, by = "Surname")
-sm_join_with_siblings
+#Join to assign the groups to the table that contains the names of children with siblings 
+same_surname_join_siblings <-inner_join(same_surname, siblings, by = "Surname")
+same_surname_join_siblings
 
-#Gets the count of people who dont share surname
+#Gets the count of people who don't share surname
 dif_surname <- alphaorderclassonly %>%
   count(Surname)%>%
   filter(n==1)
@@ -80,17 +80,18 @@ no_siblings$groups <- 1: nrow(no_siblings)
 no_siblings
 
 #Removing unwanted columns from the two tables
-sm_join_with_siblings <- sm_join_with_siblings %>%
+same_surname_join_siblings <- same_surname_join_siblings %>%
   select(-n, -teacher, -SCHOLARSHIP, -`ON REBATE?`, -`COMPUTER No`)
-sm_join_with_siblings
+same_surname_join_siblings
 
 no_siblings <- no_siblings%>%
   select(-teacher, -SCHOLARSHIP, -`ON REBATE?`, -`COMPUTER No`)
 no_siblings
 
 #Joining the two tables
-full_grouped_table <- full_join(sm_join_with_siblings, no_siblings)
+full_grouped_table <- full_join(same_surname_join_siblings, no_siblings)
 full_grouped_table <- full_grouped_table %>% arrange(Surname)
+full_grouped_table
 
 #Separating the groups into even number groups and odd number groups (even = a, odd = b)
 full_grouped_table$groups_alpha <- NA
@@ -101,7 +102,6 @@ for(i in full_grouped_table$groups){
     full_grouped_table$groups_alpha[i] <- "group a"
   }else{
     full_grouped_table$groups_alpha[i] <- "group b"
-    next
   }
   i <- i + 1
 }
