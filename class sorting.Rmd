@@ -1,13 +1,9 @@
 ---
-title: "class sorting"
+title: "HH Class Sorting"
 author: "Doe Emmanuel"
-date: "09/21/2020"
+date: "2/25/2021"
 output: pdf_document
 ---
-
-## R Markdown
-
-This is an R Markdown document for easy readability. Codes are also attached
 
 ```{r}
 #set working directory
@@ -30,7 +26,7 @@ library(stringr)
 #rename serial number column
 alphaorderlist <- alphaorderlist %>% rename(s_no = `S/No`)
 
-#separte the class teachers from the class
+#separate the class teachers from the class
 donn <- alphaorderlist %>%
   separate(CLASS, into = c("class", "teacher"), sep = "--")
 donn
@@ -53,18 +49,66 @@ same_surname <- alphaorderclassonly %>%
   filter(n > 1) %>%
   arrange(desc(n))
 same_surname
-#summing helps to know the total number of students in this category
-sum(same_surname$n)
 
+#Creates a new column to initialize grouping
+same_surname$groups <- NA
+
+#Assigns numbers to the respective distinct surnames
+same_surname$groups <- 1:nrow(same_surname)
+same_surname
+
+#sort into group a or b
+same_surname$groups_alpha <- NA
+
+i <- 1
+for(i in same_surname$groups){
+  if(same_surname$groups[i] %% 2 == 0){
+    same_surname$groups_alpha[i] <- "group a"
+  }else{
+    same_surname$groups_alpha[i] <- "group b"
+  }
+  i <- i + 1
+}
+same_surname
+    
 #this shows(filters) the students with siblings
 siblings <- alphaorderclassonly %>%
   filter(Surname %in% same_surname$Surname)
 siblings
 
-#gets the count of people who dont share surname
+
+#summing helps to know the total number of students in this category
+sum(same_surname$n)
+
+#Join to assign the groups to the table that contains the names of children with siblings 
+same_surname_join_siblings <-inner_join(same_surname, siblings, by = "Surname")
+same_surname_join_siblings
+
+#Gets the count of people who don't share surname
 dif_surname <- alphaorderclassonly %>%
   count(Surname)%>%
   filter(n==1)
+dif_surname
+
+#Creates a new column to initialize grouping
+dif_surname$groups <- NA
+
+#Assigns numbers to the respective distinct surnames
+dif_surname$groups <- 1:nrow(dif_surname)
+dif_surname
+
+#sort into group a or b
+dif_surname$groups_alpha <- NA
+
+i <- 1
+for(i in dif_surname$groups){
+  if(dif_surname$groups[i] %% 2 == 0){
+    dif_surname$groups_alpha[i] <- "group a"
+  }else{
+    dif_surname$groups_alpha[i] <- "group b"
+  }
+  i <- i + 1
+}
 dif_surname
 
 #shows(filters) the students without siblings
@@ -72,27 +116,46 @@ no_siblings <- alphaorderclassonly %>%
   filter(Surname %in% dif_surname$Surname)
 no_siblings
 
-#Initial Grouping Process
-alphaorderclassonly$groups <- NA
-surname_counter <- 1
+#Join to assign the groups to the table that contains the names of children with no siblings 
+dif_surname_join_no_sibling <-inner_join(dif_surname, no_siblings, by = "Surname")
+dif_surname_join_no_sibling
 
-for(name in alphaorderclassonly$Surname){
-  name_holder <- alphaorderclassonly$Surname
-  if (name == name_holder){
-    alphaorderclassonly$groups[[surname_counter]] <- "group a"
-    next
-    surname_counter <- surname_counter + 1
-  }
-  else{
-    surname_counter <- surname_counter + 1
-    name_holder <- alphaorderclassonly$Surname[surname_counter]
-    if (name == name_holder){
-      alphaorderclassonly$groups[[surname_counter]] <- "group b"
-    }
-    else{
-      break
-    }
-  }
-}
-alphaorderclassonly
+#Removing unwanted columns from the two tables
+same_surname_join_siblings <- same_surname_join_siblings %>%
+  select(-n, -teacher, -SCHOLARSHIP, -`ON REBATE?`, -`COMPUTER No`)
+same_surname_join_siblings
+
+dif_surname_join_no_sibling <- dif_surname_join_no_sibling %>%
+  select(-n, -teacher, -SCHOLARSHIP, -`ON REBATE?`, -`COMPUTER No`)
+dif_surname_join_no_sibling
+
+#Joining the two tables
+full_grouped_table <- full_join(same_surname_join_siblings, dif_surname_join_no_sibling)%>%
+  select(-groups) %>%
+    arrange(Surname)
+full_grouped_table
+
+#Separating groups
+group_a_pupils <- full_grouped_table %>%
+  filter(groups_alpha == "group a")
+group_a_pupils
+
+group_b_pupils <- full_grouped_table %>%
+  filter(groups_alpha == "group b")
+group_b_pupils
+
+#Filter for different class
+kg_1_group_a <- group_a_pupils %>%
+  filter(class == "KG 1")
+kg_1_group_a
+
+kg_1_group_b <- group_b_pupils %>%
+  filter(class == "KG 1")
+kg_1_group_b
+
+kg_2_group_a <- group_a_pupils %>%
+  filter(class == "KG 2")
+kg_2_group_a
+#and so on
 ```
+## R Markdown
