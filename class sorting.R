@@ -42,17 +42,32 @@ same_surname <- alphaorderclassonly %>%
   arrange(desc(n))
 same_surname
 
-#this shows(filters) the students with siblings
-siblings <- alphaorderclassonly %>%
-  filter(Surname %in% same_surname$Surname)
-siblings
-
 #Creates a new column to initialize grouping
 same_surname$groups <- NA
 
 #Assigns numbers to the respective distinct surnames
 same_surname$groups <- 1:nrow(same_surname)
 same_surname
+
+#sort into group a or b
+same_surname$groups_alpha <- NA
+
+i <- 1
+for(i in same_surname$groups){
+  if(same_surname$groups[i] %% 2 == 0){
+    same_surname$groups_alpha[i] <- "group a"
+  }else{
+    same_surname$groups_alpha[i] <- "group b"
+  }
+  i <- i + 1
+}
+same_surname
+    
+#this shows(filters) the students with siblings
+siblings <- alphaorderclassonly %>%
+  filter(Surname %in% same_surname$Surname)
+siblings
+
 
 #summing helps to know the total number of students in this category
 sum(same_surname$n)
@@ -67,44 +82,49 @@ dif_surname <- alphaorderclassonly %>%
   filter(n==1)
 dif_surname
 
+#Creates a new column to initialize grouping
+dif_surname$groups <- NA
+
+#Assigns numbers to the respective distinct surnames
+dif_surname$groups <- 1:nrow(dif_surname)
+dif_surname
+
+#sort into group a or b
+dif_surname$groups_alpha <- NA
+
+i <- 1
+for(i in dif_surname$groups){
+  if(dif_surname$groups[i] %% 2 == 0){
+    dif_surname$groups_alpha[i] <- "group a"
+  }else{
+    dif_surname$groups_alpha[i] <- "group b"
+  }
+  i <- i + 1
+}
+dif_surname
+
 #shows(filters) the students without siblings
 no_siblings <- alphaorderclassonly %>%
   filter(Surname %in% dif_surname$Surname)
 no_siblings
 
-#Initial Grouping Process for non siblings
-no_siblings$groups <- NA
-
-#Assign numbers to the groups
-no_siblings$groups <- 1: nrow(no_siblings)
-no_siblings
+#Join to assign the groups to the table that contains the names of children with no siblings 
+dif_surname_join_no_sibling <-inner_join(dif_surname, no_siblings, by = "Surname")
+dif_surname_join_no_sibling
 
 #Removing unwanted columns from the two tables
 same_surname_join_siblings <- same_surname_join_siblings %>%
   select(-n, -teacher, -SCHOLARSHIP, -`ON REBATE?`, -`COMPUTER No`)
 same_surname_join_siblings
 
-no_siblings <- no_siblings%>%
-  select(-teacher, -SCHOLARSHIP, -`ON REBATE?`, -`COMPUTER No`)
-no_siblings
+dif_surname_join_no_sibling <- dif_surname_join_no_sibling %>%
+  select(-n, -teacher, -SCHOLARSHIP, -`ON REBATE?`, -`COMPUTER No`)
+dif_surname_join_no_sibling
 
 #Joining the two tables
-full_grouped_table <- full_join(same_surname_join_siblings, no_siblings)
-full_grouped_table <- full_grouped_table %>% arrange(Surname)
-full_grouped_table
-
-#Separating the groups into even number groups and odd number groups (even = a, odd = b)
-full_grouped_table$groups_alpha <- NA
-
-i <- 1
-for(i in full_grouped_table$groups){
-  if(full_grouped_table$groups[i] %% 2 == 0){
-    full_grouped_table$groups_alpha[i] <- "group a"
-  }else{
-    full_grouped_table$groups_alpha[i] <- "group b"
-  }
-  i <- i + 1
-}
+full_grouped_table <- full_join(same_surname_join_siblings, dif_surname_join_no_sibling)%>%
+  select(-groups) %>%
+    arrange(Surname)
 full_grouped_table
 
 #Separating groups
